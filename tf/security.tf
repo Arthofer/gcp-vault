@@ -1,7 +1,7 @@
 # Firewalls for vault
 resource "google_compute_firewall" "vault-allow-service" {
-    name = "vault-allow-internal"
-    description = "Allows TCP connections from any source to vault load balancer."
+    name = "defualt-allow-vault"
+    description = "Allow vault from anywhere."
     network = "default"
 
     allow {
@@ -10,5 +10,5 @@ resource "google_compute_firewall" "vault-allow-service" {
     }
 
     source_ranges = ["0.0.0.0/0"]
-    target_tags = ["vault-balancer"]
+    target_tags = ["vault"]
 }

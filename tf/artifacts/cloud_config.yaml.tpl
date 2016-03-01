@@ -18,7 +18,7 @@ coreos:
       enable: true
       content: |
         [Unit]
-        Description=Install Vault
+        Description=Install Vault and server cert
         [Service]
         Type=oneshot
         RemainAfterExit=true
@@ -27,7 +27,8 @@ coreos:
           curl -s -L -O ${vault_release_url} \
           && unzip -o $(basename ${vault_release_url}) -d /opt/bin/ \
           && chmod 755 /opt/bin/vault \
-          && rm $(basename ${vault_release_url}))"
+          && rm $(basename ${vault_release_url}) \
+          && (cd /var/lib/apps/vault/certs; ./gen.sh))"
     - name: vault.service
       command: start
       enable: true
@@ -53,74 +54,50 @@ write_files:
         sync = "yes"
       }
       listener "tcp" {
-        address = "0.0.0.0:8200"
+        address = "127.0.0.1:8200"
         tls_disable = 0
         tls_cert_file = "/var/lib/apps/vault/certs/vault.crt"
         tls_key_file = "/var/lib/apps/vault/certs/vault.key"
       }
       /* Need to install statesite for this to work 
       telemetry {
-        statsite_address = "127.0.0.1:8125"
+        statsite_address = "0.0.0.0:8125"
         disable_hostname = true
       }
       */
-  - path: /var/lib/apps/vault/certs/vault.crt
+  - path: /var/lib/apps/vault/certs/vault.cnf
     permissions: 0644
     owner: root
     content: |
-      -----BEGIN CERTIFICATE-----
-      MIIDlDCCAnygAwIBAgIJALhWq59GXtSiMA0GCSqGSIb3DQEBBQUAMIGuMQswCQYD
-      VQQGEwJVUzELMAkGA1UECAwCQ0ExFjAUBgNVBAcMDUhhbGYgTW9vbiBCYXkxDjAM
-      BgNVBBEMBTk0MDE5MRIwEAYDVQQKDAlEb2NrZXJhZ2UxFjAUBgNVBAsMDUlUIERl
-      cGFydG1lbnQxGDAWBgNVBAMMD2NhLmRvY2tlci5sb2NhbDEkMCIGCSqGSIb3DQEJ
-      ARYVYWRtaW5AY2EuZG9ja2VyLmxvY2FsMB4XDTE2MDMwMTA2NDM1NloXDTQzMDcx
-      NzA2NDM1NlowHTEbMBkGA1UEAwwSdmF1bHQuZG9ja2VyLmxvY2FsMIIBIjANBgkq
-      hkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtSzeYF/PZFXjLOwQpBy5DgbJs8vOmcQR
-      Jh3uVXGnUZr1FdZzivhn6QmJcICHVUrVLGsI/IjPaMvX5gZWmdFGYbBuewtECMaV
-      zvA880KsJEO4A8FQqCHYOIDAwqbk4lO0fqQE2COQzTLMOP8Q+X9idIY50+tfFSoh
-      qKzJ7JukAkurkGlT4M8WI7pJmCqXOUQG97awrKXITvQwiFqYU9k/I1OJqNnGdpfN
-      ODTSCcxm+0yhH0gChA752mrINyPyd4vXr346TWjD4rZZqgIddSq6UJA+fSj1bvfN
-      1df2E1R2D+UzTrMNY+8mLOBPoMR8zKMBLeOeG9GlL4GAujP4LxA59wIDAQABo0Uw
-      QzALBgNVHQ8EBAMCBLAwEwYDVR0lBAwwCgYIKwYBBQUHAwEwHwYDVR0RBBgwFoIO
-      Ki5kb2NrZXIubG9jYWyHBH8AAAEwDQYJKoZIhvcNAQEFBQADggEBADh+D1+uJjrk
-      Co3kvIDME+HuvYnTGTVxsI7QVKOeSSkuYl5O4gEv3737M5h50NPwHev/UUmqd8BY
-      kEFTt/UE/jtZX/dJDsn9gN3m6B1U1SDOKoH1gYPj+71CkXp0/Q+JsvXfRI6VgHXj
-      Av8CWMfJ5raTn21/Zc01bhyvOzkebjlJgEX3cJSt1ODHMPAZ051QmCNzDi7r7yFp
-      qB1h9AVwSE/+clWAsY9iqHbN7/lCSzILmpXX7aYXq0JHJRtp4vC4N0enaxa8hGcy
-      68EDRoreaGoRJTl76WrnPH2DAwHcJbY1xvtRA4ISG1CHpSckDPS6dR0n4deKaF4+
-      mmLxwAQXtDI=
-      -----END CERTIFICATE-----
-  - path: /var/lib/apps/vault/certs/vault.key
-    permissions: 0600
+      [ req ]
+      default_bits       = 2048
+      default_md         = sha512
+      default_keyfile    = vault.key
+      prompt             = no
+      encrypt_key        = no
+      distinguished_name = req_distinguished_name
+      req_extensions     = v3_req
+      [ req_distinguished_name ]
+      commonName             = "vault.dockerage.com"
+      emailAddress           = "admin@dockerage.com"
+      [ v3_req ]
+      keyUsage = keyEncipherment, dataEncipherment, digitalSignature
+      extendedKeyUsage = serverAuth
+      subjectAltName = @alt_names
+
+      [alt_names]
+      IP.1 = 127.0.0.1
+      IP.2 = $public_ipv4
+  - path: /var/lib/apps/vault/certs/gen.sh
+    permissions: 0700
     owner: root
-    content: |
-      -----BEGIN RSA PRIVATE KEY-----
-      MIIEpAIBAAKCAQEAtSzeYF/PZFXjLOwQpBy5DgbJs8vOmcQRJh3uVXGnUZr1FdZz
-      ivhn6QmJcICHVUrVLGsI/IjPaMvX5gZWmdFGYbBuewtECMaVzvA880KsJEO4A8FQ
-      qCHYOIDAwqbk4lO0fqQE2COQzTLMOP8Q+X9idIY50+tfFSohqKzJ7JukAkurkGlT
-      4M8WI7pJmCqXOUQG97awrKXITvQwiFqYU9k/I1OJqNnGdpfNODTSCcxm+0yhH0gC
-      hA752mrINyPyd4vXr346TWjD4rZZqgIddSq6UJA+fSj1bvfN1df2E1R2D+UzTrMN
-      Y+8mLOBPoMR8zKMBLeOeG9GlL4GAujP4LxA59wIDAQABAoIBAQCFa/iMEqLBajq1
-      j1cl9H0XZkpOHS4VsP1MC8jDpcIpZ6tLnLVUR2EGjd5oOk7vsf9RCbYBe6L6svtY
-      y5wlBKgHMw35kS9WIyCZ1/Oa1aO9xR0Trt5+IwZ/fdn2vz9ZqXkHtjRXE8IES394
-      DebrRjM0StD1TqWkCXXmKPE/TNM4WFJZIJy/XQRgjMJwqz/O3pQX88pyoM9b9eXA
-      Bib44hq76axpKzpTn9Nw1n9hui0aYlwOuhc7obCtYWATSpSz0R1qUz8iAZVdqioN
-      fx7VR5VbiSpxTHTsxYuLYjuvbrIEz89xW8LGE1Rk+PRYRqpjm/ubre5w+vfqVeUw
-      h97xSZ1hAoGBANhLQle9nR4N7GNzyb0KnwKLNLWcWDrlLXmY8e5a27y2Gc+IQnQn
-      76bzzPI+SKUwGg3SyhI9blaxvctHJiOe8XCAnh9WQg+TSpaEwcUyiEM+jNPs0QW1
-      Kxns6uzGIO+dqr/evC9ksspWjdhYmGiu1yxhpnyPIgXpxqVOOK0OJBDxAoGBANZv
-      NGp+Mk38HW/DsZi+J6arBkRgiLHwilvcfTEGQtqvL+8EW78iwKkA2zAYWsxfbv0a
-      RTRN/CPBV8yNvgTUsz3huKZVc7cOeP95CAhrFTFvbeu7INb8RopJonKDd50b0T6j
-      RCI/eE4brylkjiaonht2jP3TZSPgpb5LNiWrQ/lnAoGBAIhXEE+8f3C1eB/Mmgsm
-      ycrRsv0Tu24MjpjKtx33efG/nA98pd8QWXmUzsiYSDSQWKwEBkpvHMFbMvcTN1BW
-      3Xx8JrA8MFIfF3I/5uEGFGzG3gCsk6mUZMHn3MI5tgM1EK/3mAoL4MO4wZrxZcj/
-      BTW9rDNyChFOJmCHKSS0+DkRAoGAJApmzetN+yt/qxRCGkEDmxCtqfprnzSlnJDv
-      fbjmrai6LrsVzIdDyGP7cxb009rKZcHvlb3xvfS2FAxSvq8dPS5eAZ7lJwRIs++c
-      uQV+d2OaHv/BokCefomnwwVzqjVNsvBv+C2gw8gFZbif58F5aXZAdjz8h84vLU+o
-      1yX088sCgYATBclNqYNdFrvxb3W1TgvtfQOLdIwu/NvU+vi3AOCWPHoy0AuG9cBK
-      W5a7Uq5UEws0XHJOY9I6GVQHpVVi3u9dgfF+iQzCrd/OYeVzhQ3WkvO/eay83HGl
-      zZbd6aNu+FEkQMBvnvNRDLEGISbFBuq4/TMcATVroOyStzjnYQa1iQ==
-      -----END RSA PRIVATE KEY-----
+    content: |      
+      #!/bin/sh
+      echo "creating the vault.key and vault.csr...."
+      openssl req -new -out vault.csr -config vault.cnf
+      echo "signing vault.csr..."
+      openssl x509 -req -days 9999 -in vault.csr -CA ca.pem -CAkey ca.key \
+              -CAcreateserial -extensions v3_req -out vault.crt -extfile vault.cnf
   - path: /var/lib/apps/vault/certs/ca.pem
     permissions: 0644
     owner: root
@@ -148,6 +125,37 @@ write_files:
       3I+Yza5TkVCPck88Q2PCECaXRSDN8UR5xTtXVBL1ikwdMsyEv7aD2ZzsET+djyZc
       jsZnSW1rVS7qOLwmOmOH2LMxknD0AOobvGkugZTA
       -----END CERTIFICATE-----
+  - path: /var/lib/apps/vault/certs/ca.key
+    permissions: 0600
+    owner: root
+    content: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIIEpQIBAAKCAQEAnBnvGi9GoysVZHhbHh1aEQbO8g7EqkiElDQzRmLT7UZh3Fao
+      SgdWKYdu1C8779trwzjPltjthxmrGuFIjPXZ3gBe3k6s/etf9na+QFa0lXmKmUX3
+      LJAnwupmfC+fDFnVVN3beol8lW35eV/KGh8SXrbHrHpadcNdQURy/MnavNQXSFxc
+      W8vyUUlkoaI8qIeKu/70wv98Nfb0I8HMDmuaJjqBaOXevD4CBUFrvrEQKWCF2DHo
+      mjDsCaQjxyoXAd85Ow8ZLxi6j4JmL2bFhR2bCfO0O8cpCHoU/W5gdZhgjbld/Tdc
+      MagOd409krolG69ReR4uibju1/xlsMtvdCnaFQIDAQABAoIBAG+GP8MvX4IXt9Lu
+      AftD8SMVACkD0BHweXgAy1lQJiTxEd1/tAAfubk130KM9H9q/lSddAJLvXe2KP6t
+      UU4UH7FyBlVBVGqdDRRixY3l5GKeUR0sVWlrHF0vZkT3KOSEEdvuHW4wZ+fCiGfk
+      vdlntZIheAqL57EXALsukhB0jmg06TjsPS8zbbnOJPbU3ZjDUjxMgfMB8xvj8LxX
+      kB9MB04ABkss47a7Ep5iHhhSQFu14udFiYOMvrrYbqp7l1zvzLYnsidrEGZIVcLr
+      xW52UfDtR4AROofSWBNpPCxv4u5OvH1NYTE1OPo21lqXhRSYiEAtO4NiZEPdH8gp
+      Az/XrsECgYEAyuDsdo0NwUuv3ByWEh+u3hOXAGa7LngwsdrlK7bUgqOfMukc6O+a
+      ZRYPvTMm+h6K3gbcE6M2XdWNuPF+uwkJuDI35ZXQBCBOlovx1cOMV4g/VzrXbA34
+      Tj61QytaZw/zQG+HwswfV12JH8L+HNpJ9EWtwJoWDzHWpg1Fp9+ErrkCgYEAxPl/
+      zrzcXfrfiP7akACzQp931LH54+FRiPTH3n3+QrQRyT0CXTxkDR6rgaHr6DxWDSKo
+      HRuvq73A1N3bucqrvr28krSgOge1kOAge76/X+BRlbdfXuNGsed4hgFyf71XTnGb
+      AX6xeuKvkxqNe84nXmZgm69T7LQ8MHAA2H4R+D0CgYEAtXzeq/LlAiz2Bf8glNf4
+      87sskvRTsG9eiExcRG3Kz48VxFJbRVnKkXFZ5RQUYx3ddl9Gkt6nrOt0W6TVjPW5
+      1yg9bslFC9vm0bAhR+wl6Mv+dccynPwmS8C3IH5w4c+X+OWM2ksGIn6PQ3WJI0B3
+      dei7VZfB8hfQgD1ROaqvpCkCgYEAo8HdrK2883D/aHCgmnnKjofvYuf4HakUVS1U
+      ATh0K1ZzNv++uG7dqz6lTWelrfSDgfYfF9wNp1VhPFeaNhM1x6UMYldCohwIqgJ7
+      XwWNKxNeIH9MDaIcAwmyXI5Vd7edHv055ftDaCuP1leL6rLQbh3lEWmo9zA8nfRv
+      74yYOe0CgYEAo8f33HogLL5/xtKkovlmTN/M+8NPMtu550gr9OKxxgYbvmQ895qy
+      hpSQnWoQ3z+Ry5sSXln4Ot5A5PfrlSCL35X7js/BOhjR3t45b9vT9KhAxmPRQiHO
+      dpiWS6BVt6AA13lV4LXIMRZ+ITJ+BC2yvPprmSTrLrt0FPyC35PJBYU=
+      -----END RSA PRIVATE KEY-----
   - path: /etc/profile.d/path.sh
     content: |
         export VAULT_CACERT=/var/lib/apps/vault/certs/ca.pem
@@ -161,24 +169,21 @@ write_files:
         alias sd="sudo systemctl"
         alias sdl="sd list-units"
         alias sds="sd status"
-        alias sdcat="sd cat"\
+        alias sdcat="sd cat"
         alias j="sudo journalctl"
         alias jfu="j -f -u"
         alias e="etcdctl"
         alias els="e ls --recursive"
         alias eget="e get"
         alias eset="e set"
-        alias eok="e cluster-health"
+        alias eok='e cluster-health'
         alias f="fleetctl -strict-host-key-checking=false"
         alias fcat="f cat"
         alias fss="f status"
         alias fst="f start"
         alias fdy="f destroy"
         alias flm="f list-machines"
-        alias flu="f list-units"
-        alias fsh="f ssh"
 # end of files
-        
 
 
 

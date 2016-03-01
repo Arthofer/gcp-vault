@@ -55,7 +55,7 @@ This file is downloaded directly from the [Google Developers Console][gProject].
 
 1. Clicking "Create" will download your credentials.
 
-1. Rename the downloaded json file to **tf/account.json**
+1. Rename the downloaded json file to **account.json**
 
 ## Install and Setup Tools
 ### Install Google Cloud SDK
@@ -84,6 +84,7 @@ Download pre-compiled binary at [Download Vault Page][vault-download]
 ## Provsion the Vault on Google Cloud
 ```shell
 $ git clone https://github.com/xuwang/vault-on-gcloud
+$ cp account.json vault-on-gcloud/tf/
 $ cd vault-on-gcloud/tf
 ```
 **Note:** You should check variable values defined in **tf/variables.tf** and **tf/vault.tfvars** and make modification to fit your own case.

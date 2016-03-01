@@ -54,7 +54,7 @@ write_files:
         sync = "yes"
       }
       listener "tcp" {
-        address = "127.0.0.1:8200"
+        address = "0.0.0.0:8200"
         tls_disable = 0
         tls_cert_file = "/var/lib/apps/vault/certs/vault.crt"
         tls_key_file = "/var/lib/apps/vault/certs/vault.key"
@@ -88,6 +88,7 @@ write_files:
       [alt_names]
       IP.1 = 127.0.0.1
       IP.2 = $public_ipv4
+      IP.3 = $private_ip4
   - path: /var/lib/apps/vault/certs/gen.sh
     permissions: 0700
     owner: root

@@ -1,6 +1,6 @@
 # Vault on Google Clould
 
-This a demo project that will install a **[Vault][vault]** on **[Google Clould Platform][gCloud]** with **[Terraform][terraform]**.
+This is a demo project that will install a **[Vault][vault]** on **[Google Clould Platform][gCloud]** with **[Terraform][terraform]**.
 
 **Vault** — a tool from HashiCorp for securely managing secrets and encrypting data in-transit. From storing credentials and API keys to encrypting passwords for user signups, Vault is meant to be a solution for all secret management needs.
 
@@ -20,11 +20,11 @@ Project Name | Project ID
 ProjectVault | vault-20160301
 
 
-**Note:** you'll be asked to setup billing infomation for this new project. If you are new user, google gives you a $300.00 GCP credit for 60 days. 
+**Note:** you'll be asked to setup billing infomation for this new project. If you are a new user, Google gives you a $300.00 GCP credit for 60 days. 
 
 ## Enable Google Cloud APIs for ProjectVault
 
-To use and control google cloud with command line tools, we need to enable Google Cloud APIs.
+To use and control Google Cloud with command line tools, we need to enable Google Cloud APIs.
 
 Go to [Google Cloud API Manager][gAPI]
 and enable Google Cloud APIs for ProjectVault:
@@ -43,9 +43,9 @@ and enable Google Cloud APIs for ProjectVault:
 
 ## Get Authentication JSON File
 
-Authenticating with Google Cloud services requires a JSON file which called the account file in Terraform.
+Authenticating with Google Cloud services requires a JSON file which is called the __account file__ in Terraform.
 
-This file is downloaded directly from the [Google Developers Console][gProject]. To make the process more straightforwarded, it is documented here:
+This file is downloaded directly from the [Google Developers Console][gProject]. To make the process more straightforward, it is documented here:
 
 1. Log into the [Google Developers Console][gProject] and select a project.
 

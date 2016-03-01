@@ -8,7 +8,7 @@ This is a demo project that will install a **[Vault][vault]** on **[Google Cloul
 
 **Terraform** is a tool for creating, combining, and managing infrastructure resources across multiple providers. Manage resources on cloud providers such as Amazon Web Services, Google Cloud, Microsoft Azure, DNS records on DNSSimple, Dyn, and CloudFlare, email services on Mailgun, and more.
 
-**CoreOS Cluster** is multi-node cluster using etcd service for HA. We use 3 nodes for the Vault implementation in this demo.
+**High Availability** is achieved by using [CoreOS Ectd Cluster][CoreOS] as the storage backend of the Vault.
 
 ## Setup A Google Cloud Project
 
@@ -99,7 +99,7 @@ Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 Now the vault cluster should be up and running on google cloud.
 
 ## Login to Vault server 
-### Login
+### Use gcloud to login Vault servers:
 
 ```shell
 $ gcloud compute --project "vault-20160301" ssh --zone "us-central1-a" "vault-1"
@@ -133,12 +133,14 @@ your Vault will remain permanently sealed.
 
 **! Warning:** Please save above keys and the *Initial Root Token* in a save places. 5 keys should not be keeped in the same place.
 
-### Unseal the Vault
+### Unseal Vault Servers
 When a Vault server is started, it starts in a sealed state. In this state, Vault is configured to know where and how to access the physical storage, but doesn't know how to decrypt any of it.
 
 Unsealing is the process of constructing the master key necessary to read the decryption key to decrypt the data, allowing access to the Vault.
 
 See [Seal/Unseal Vault] (https://www.vaultproject.io/docs/concepts/seal.html)
+
+Ssh to each Vault servers, i.e. vault-1, vault-2, vault-3 do vault unseal:
 
 ```shell
 $ vault unseal <Key 1>

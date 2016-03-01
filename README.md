@@ -8,7 +8,7 @@ This is a demo project that will install a **[Vault][vault]** on **[Google Cloul
 
 **Terraform** is a tool for creating, combining, and managing infrastructure resources across multiple providers. Manage resources on cloud providers such as Amazon Web Services, Google Cloud, Microsoft Azure, DNS records on DNSSimple, Dyn, and CloudFlare, email services on Mailgun, and more.
 
-**High Availability** is achieved by using [CoreOS Ectd Cluster][CoreOS] as the storage backend of the Vault.
+**High Availability** is achieved by using a [CoreOS Ectd Cluster][Etcd] as the storage backend of the Vault.
 
 ## Setup A Google Cloud Project
 
@@ -208,3 +208,4 @@ $ terraform destroy -var-file=vault.tfvars
 [terraform]: https://www.terraform.io/
 [CoreOS]: https://coreos.com/
 [vault-download]: https://www.vaultproject.io/downloads.html
+[Etcd]: https://coreos.com/etcd/

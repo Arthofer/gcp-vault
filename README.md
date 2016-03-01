@@ -191,7 +191,7 @@ $ terraform destroy -var-file=vault.tfvars
 	* Google Cloud Platform
 	* Etcd cluster as storage backend
 	* Vault cluster behind load balancer
-* Ssh backend not working on CoreOS
+* Ssh backend is not working on CoreOS because PAM is not supported on CoreOS
 
 [virtualbox]: https://www.virtualbox.org/
 [vagrant]: https://www.vagrantup.com/downloads.html

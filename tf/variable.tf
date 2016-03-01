@@ -28,7 +28,7 @@ variable "cluster_name" {
 }
 
 variable "etcd_cloud_config_template" {
-    default = "artifacts/etcd_cloud_config.yaml.tpl"
+    default = "artifacts/cloud_config.yaml.tpl"
 }
 
 variable "discovery_url_file" {

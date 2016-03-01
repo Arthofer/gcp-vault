@@ -66,7 +66,7 @@ Following [Google Cloud SDK Instructions][gSDK] to install Google Cloud SDK
 
 ### Initialize gcloud configuration
 ```
-gcloud init --console-only
+$ gcloud init --console-only
 Welcome! This command will take you through the configuration of gcloud.
 ...
 ```
@@ -83,25 +83,103 @@ Download pre-compiled binary at [Download Vault Page][vault-download]
 
 ## Provsion the Vault on Google Cloud
 ```shell
-git clone https://github.com/xuwang/vault-on-gcloud
-cd vault-on-gcloud/tf
+$ git clone https://github.com/xuwang/vault-on-gcloud
+$ cd vault-on-gcloud/tf
 ```
 1. Check the **tf/variables.tf** and **tf/vault.tfvars** file and make sure you agrees with those value.
 1. Check
 ```shell
-terraform plan -var-file=vault.tfvars
+$ terraform plan -var-file=vault.tfvars
 ```
 1. Apply
 ```shell
-terraform apply -var-file=vault.tfvars
+$ terraform apply -var-file=vault.tfvars
+...
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
 ```
+Now the vault cluster should be up and running on google cloud.
+
+## Login to Vault server 
+### Login
+
+```shell
+$ gcloud compute --project "vault-20160301" ssh --zone "us-central1-a" "vault-1"
+...
+CoreOS stable (835.9.0)
+```
+
+### Initialize the Vault
+
+Initialization is the process of first configuring the Vault. This only happens once when the server is started against a new backend that has never been used with Vault before.
+
+See [ Initialize the Vault ] (https://www.vaultproject.io/intro/getting-started/deploy.html)
+
+```shell
+$ vault init
+Key 1: 0bc5b079200bcbaf8d1af0e6ad7cb166fb77873ef5ddf60e7f1687f110c6c18901
+Key 2: 1024f60e2c20b53f7942883e373afa72049baa60c578e767f8af76ab1238cc8a02
+Key 3: 66553054a2d3dc8305527caa57f65b1394534ece64adcdca62c19596dec171cf03
+Key 4: 955c312b93c7b56c2121e00dca9b2507fe7d828160c10d1217e1517674a46e5d04
+Key 5: e32df7711d34dcd05d311499aa5784666eb5662fc11427bf8d8fb24bb85dd31805
+Initial Root Token: af3db37d-251c-01c7-4d23-4801660d81d9
+
+Vault initialized with 5 keys and a key threshold of 3. Please
+securely distribute the above keys. When the Vault is re-sealed,
+restarted, or stopped, you must provide at least 3 of these keys
+to unseal it again.
+
+Vault does not store the master key. Without at least 3 keys,
+your Vault will remain permanently sealed.
+```
+
+**! Warning:** Please save above keys and the *Initial Root Token* in a save places. 5 keys should not be keeped in the same place.
+
+### Unseal the Vault
+When a Vault server is started, it starts in a sealed state. In this state, Vault is configured to know where and how to access the physical storage, but doesn't know how to decrypt any of it.
+
+Unsealing is the process of constructing the master key necessary to read the decryption key to decrypt the data, allowing access to the Vault.
+
+See [Seal/Unseal Vault] (https://www.vaultproject.io/docs/concepts/seal.html)
+
+```shell
+$ vault unseal <Key 1>
+Sealed: true
+Key Shares: 5
+Key Threshold: 3
+Unseal Progress: 1
+
+$ vault unseal <Key 2>
+Sealed: true
+Key Shares: 5
+Key Threshold: 3
+Unseal Progress: 2
+
+$ vault unseal <Key 3>
+Sealed: false
+Key Shares: 5
+Key Threshold: 3
+Unseal Progress: 0
+
+$ ault status
+Sealed: false
+Key Shares: 5
+Key Threshold: 3
+Unseal Progress: 0
+
+High-Availability Enabled: true
+	Mode: active
+	Leader: http://127.0.0.1:2379
+```
+Now the Vault is ready to serve. 
+
+See [Introduction to Vault] (https://www.vaultproject.io/intro/) for usage examples.
 
 ## Cleanup: Destroy the Vault Cluster
 
 If you want to stop paying google for **Vault**, remember to clean it up:
 
 ```shell
-terraform destroy -var-file=vault.tfvars
+$ terraform destroy -var-file=vault.tfvars
 ```
 **! Warning:** Make sure you saved all your secrets somewhere else before you destroy the Vault!
 

@@ -36,7 +36,7 @@ resource "template_file" "etcd_cloud_config" {
 
     depends_on = [
             "template_file.etcd_discovery_url"
-        ]
+    ]
     template = "${file("${var.etcd_cloud_config_template}")}"
     vars {
         "etcd_discovery_url" = "${file(var.discovery_url_file)}"

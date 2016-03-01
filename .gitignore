@@ -8,3 +8,4 @@ account.json
 .vagrant
 *.tfstate
 *.backup
+discovery_url.txt

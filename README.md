@@ -86,12 +86,9 @@ Download pre-compiled binary at [Download Vault Page][vault-download]
 $ git clone https://github.com/xuwang/vault-on-gcloud
 $ cd vault-on-gcloud/tf
 ```
-* Check the variable values defined in **tf/variables.tf** and **tf/vault.tfvars** file and make sure you agree with those value.
-* Plan
-```shell
-$ terraform plan -var-file=vault.tfvars
-```
-* Apply
+**Note:** You should check variable values defined in **tf/variables.tf** and **tf/vault.tfvars** and make modification to fit your own case.
+
+#### Apply the terraform:
 ```shell
 $ terraform apply -var-file=vault.tfvars
 ...

@@ -105,7 +105,24 @@ $ cd vault-on-gcloud/tf
 ```
 **Note:** You should check variable values defined in **tf/variables.tf** and **tf/vault.tfvars** and make modification to fit your own case.
 
-#### Apply the terraform:
+#### Plan and apply the Terraform managed resources
+
+Run Terraform plan to preview what resources will be created:
+```
+$ terraform plan -var-file=vault.tfvars
+...
++ google_compute_address.vault_service
++ google_compute_firewall.vault-allow-service
++ google_compute_forwarding_rule.vault_service
++ google_compute_http_health_check.vault
++ google_compute_instance.vault.0
++ google_compute_instance.vault.1
++ google_compute_instance.vault.2
++ google_compute_target_pool.vault
++ template_file.etcd_cloud_config
+...
+If everything looks good:
+```
 ```shell
 $ terraform apply -var-file=vault.tfvars
 ...

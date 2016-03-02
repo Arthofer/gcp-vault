@@ -75,22 +75,35 @@ write_files:
       default_bits       = 2048
       default_md         = sha512
       default_keyfile    = vault.key
+      distinguished_name = req_distinguished_name
+      x509_extensions    = v3_req
       prompt             = no
       encrypt_key        = no
-      distinguished_name = req_distinguished_name
-      req_extensions     = v3_req
-      [ req_distinguished_name ]
-      commonName             = "vault.dockerage.com"
-      emailAddress           = "admin@dockerage.com"
-      [ v3_req ]
-      keyUsage = keyEncipherment, dataEncipherment, digitalSignature
-      extendedKeyUsage = serverAuth
+
+      [req_distinguished_name]
+      C = US
+      ST = CA
+      L =  city
+      O = company
+      CN = *
+
+      [v3_req]
+      subjectKeyIdentifier = hash
+      authorityKeyIdentifier = keyid,issuer
+      basicConstraints = CA:TRUE
       subjectAltName = @alt_names
 
       [alt_names]
-      IP.1 = 127.0.0.1
+      DNS.1 = *
+      DNS.2 = *.*
+      DNS.3 = *.*.*
+      DNS.4 = *.*.*.*
+      DNS.5 = *.*.*.*.*
+      DNS.6 = *.*.*.*.*.*
+      DNS.7 = *.*.*.*.*.*.*
+      IP.1 = $private_ipv4
       IP.2 = $public_ipv4
-      IP.3 = $private_ipv4
+      IP.3 = 127.0.0.1
   - path: /var/lib/apps/vault/certs/gen.sh
     permissions: 0700
     owner: root

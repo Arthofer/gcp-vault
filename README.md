@@ -70,6 +70,18 @@ Following [Google Cloud SDK Instructions][gSDK] to install Google Cloud SDK
 $ gcloud init --console-only
 Welcome! This command will take you through the configuration of gcloud.
 ...
+gcloud has now been configured!
+You can use [gcloud config] to change more gcloud settings.
+
+Your active configuration is: [default]
+
+[compute]
+region = us-central1
+zone = us-central1-a
+[core]
+account = youraccount@gmail.com
+disable_usage_reporting = True
+project = vault-20160301
 ```
 
 ### Install Terraform

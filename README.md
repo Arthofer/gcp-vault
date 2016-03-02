@@ -92,7 +92,10 @@ Following the instructions on [Installing Terraform][installing-terraform] to in
 
 ### Install Vault Client On Local Machine
 
-Download pre-compiled binary at [Download Vault Page][vault-download]
+Download pre-compiled binary at [Download Vault Page][vault-download], or run:
+```
+$ (mkdir -p ~/bin; cd ~/bin; curl -O https://releases.hashicorp.com/vault/0.5.1/vault_0.5.1_darwin_amd64.zip && unzip vault_0.5.1_darwin_amd64.zip && rm vault_0.5.1_darwin_amd64.zip )
+```
 
 ## Provsion the Vault on Google Cloud
 ```shell

@@ -3,7 +3,8 @@ resource "google_compute_instance" "vault" {
     name = "vault-${count.index+1}"
     machine_type = "n1-standard-1"
     zone = "${lookup(var.zones, concat("zone", count.index))}"
-    tags = ["etcd", "vault"]
+    tags = ["vault"]
+    can_ip_forward = true
 
     disk {
         image = "${var.image}"
@@ -34,17 +35,12 @@ resource "google_compute_instance" "vault" {
 
 resource "template_file" "etcd_cloud_config" {
 
-    depends_on = [
-            "template_file.etcd_discovery_url"
-    ]
+    depends_on = ["template_file.etcd_discovery_url"]
     template = "${file("${var.etcd_cloud_config_template}")}"
     vars {
         "etcd_discovery_url" = "${file(var.discovery_url_file)}"
         "size" = "${var.node_count}"
         "vault_release_url" ="${var.vault_release_url}"
-        "vault_conf" = "${file(var.vault_conf_file)}"
-        "vault_cert" = "${file(var.vault_cert_file)}"
-        "vault_key" = "${file(var.vault_key_file)}"
     }
 
 }

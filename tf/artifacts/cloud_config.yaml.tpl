@@ -59,6 +59,8 @@ write_files:
         tls_cert_file = "/var/lib/apps/vault/certs/vault.crt"
         tls_key_file = "/var/lib/apps/vault/certs/vault.key"
       }
+      # if mlock is not supported
+      # disable_mlock = true
       /* Need to install statesite for this to work 
       telemetry {
         statsite_address = "0.0.0.0:8125"
@@ -88,7 +90,7 @@ write_files:
       [alt_names]
       IP.1 = 127.0.0.1
       IP.2 = $public_ipv4
-      IP.3 = $private_ip4
+      IP.3 = $private_ipv4
   - path: /var/lib/apps/vault/certs/gen.sh
     permissions: 0700
     owner: root

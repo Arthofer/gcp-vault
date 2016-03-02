@@ -55,39 +55,3 @@ variable "vault_conf_file" {
     default = "artifacts/vault.hcl"
 }
 
-variable "ca_cert_file" {
-    default = "artifacts/certs/rootCA.pem"
-}
-
-variable "vault_cert_file" {
-    default = "artifacts/certs/vault.crt"
-}
-
-variable "vault_key_file" {
-    default = "artifacts/certs/vault.key"
-}
-
-variable "vault_client_cert_file" {
-    default = "artifacts/certs/vault-client.crt"
-}
-
-variable "vault_client_key_file" {
-    default = "artifacts/certs/vault-client.key"
-}
-
-variable "etcd_cert_file" {
-    default = "artifacts/certs/etcd.crt"
-}
-
-variable "etcd_key_file" {
-    default = "artifacts/certs/etcd.key"
-}
-
-variable "etcd_client_cert_file" {
-    default = "artifacts/certs/etcd-client.crt"
-}
-
-variable "etcd_client_key_file" {
-    default = "artifacts/certs/etcd-client.key"
-}
-

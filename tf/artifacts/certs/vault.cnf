@@ -17,4 +17,4 @@ subjectAltName = @alt_names
 [alt_names]
 IP.1 = 127.0.0.1
 IP.2 = $public_ipv4
-IP.3 = $private_ip4
+IP.3 = $private_ipv4

@@ -70,6 +70,18 @@ Following [Google Cloud SDK Instructions][gSDK] to install Google Cloud SDK
 $ gcloud init --console-only
 Welcome! This command will take you through the configuration of gcloud.
 ...
+gcloud has now been configured!
+You can use [gcloud config] to change more gcloud settings.
+
+Your active configuration is: [default]
+
+[compute]
+region = us-central1
+zone = us-central1-a
+[core]
+account = youraccount@gmail.com
+disable_usage_reporting = True
+project = vault-20160301
 ```
 
 ### Install Terraform
@@ -80,7 +92,10 @@ Following the instructions on [Installing Terraform][installing-terraform] to in
 
 ### Install Vault Client On Local Machine
 
-Download pre-compiled binary at [Download Vault Page][vault-download]
+Download pre-compiled binary at [Download Vault Page][vault-download], or run:
+```
+$ (mkdir -p ~/bin; cd ~/bin; curl -O https://releases.hashicorp.com/vault/0.5.1/vault_0.5.1_darwin_amd64.zip && unzip vault_0.5.1_darwin_amd64.zip && rm vault_0.5.1_darwin_amd64.zip )
+```
 
 ## Provsion the Vault on Google Cloud
 ```shell
@@ -90,7 +105,24 @@ $ cd vault-on-gcloud/tf
 ```
 **Note:** You should check variable values defined in **tf/variables.tf** and **tf/vault.tfvars** and make modification to fit your own case.
 
-#### Apply the terraform:
+#### Plan and apply the Terraform managed resources
+
+Run Terraform plan to preview what resources will be created:
+```
+$ terraform plan -var-file=vault.tfvars
+...
++ google_compute_address.vault_service
++ google_compute_firewall.vault-allow-service
++ google_compute_forwarding_rule.vault_service
++ google_compute_http_health_check.vault
++ google_compute_instance.vault.0
++ google_compute_instance.vault.1
++ google_compute_instance.vault.2
++ google_compute_target_pool.vault
++ template_file.etcd_cloud_config
+...
+If everything looks good:
+```
 ```shell
 $ terraform apply -var-file=vault.tfvars
 ...

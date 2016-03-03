@@ -121,14 +121,25 @@ $ terraform plan -var-file=vault.tfvars
 + google_compute_target_pool.vault
 + template_file.etcd_cloud_config
 ...
-If everything looks good:
 ```
+If everything looks good:
 ```shell
 $ terraform apply -var-file=vault.tfvars
 ...
 Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+  vault_service_ip = 104.154.88.124
 ```
-Now the vault cluster should be up and running on google cloud.
+Now the vault cluster should be up and running on Google cloud:
+```
+ $ gcloud compute instances list
+NAME    ZONE          MACHINE_TYPE  PREEMPTIBLE INTERNAL_IP EXTERNAL_IP     STATUS
+vault-1 us-central1-a n1-standard-1             10.128.0.2  146.148.104.177 RUNNING
+vault-3 us-central1-c n1-standard-1             10.128.0.4  23.236.51.9     RUNNING
+vault-2 us-central1-b n1-standard-1             10.128.0.3  104.154.82.96   RUNNING
+```
 
 ## Login to Vault server 
 ### Use gcloud to login Vault servers:
@@ -137,6 +148,10 @@ Now the vault cluster should be up and running on google cloud.
 $ gcloud compute --project "vault-20160301" ssh --zone "us-central1-a" "vault-1"
 ...
 CoreOS stable (835.9.0)
+```
+**Note** If this is your first login, _gcloud_ command will generate public/private rsa key pair named _google_compute_engine_ and save it under ~/.ssh directory. To use it for ssh forwarding, logout and then:
+```
+$ ssh-add ~/.ssh/google_compute_engine
 ```
 
 ### Initialize the Vault
@@ -163,7 +178,7 @@ Vault does not store the master key. Without at least 3 keys,
 your Vault will remain permanently sealed.
 ```
 
-**! Warning:** Please save above keys and the *Initial Root Token* in a save places. 5 keys should not be keeped in the same place.
+**! Warning:** Please save above keys and the *Initial Root Token* in safe places. 5 keys should not be keeped in the same place.
 
 ### Unseal Vault Servers
 When a Vault server is started, it starts in a sealed state. In this state, Vault is configured to know where and how to access the physical storage, but doesn't know how to decrypt any of it.
@@ -172,7 +187,7 @@ Unsealing is the process of constructing the master key necessary to read the de
 
 See [Seal/Unseal Vault] (https://www.vaultproject.io/docs/concepts/seal.html)
 
-Ssh to each Vault servers, i.e. vault-1, vault-2, vault-3 do vault unseal:
+Ssh to each Vault server, i.e. vault-1, vault-2, vault-3 do vault unseal:
 
 ```shell
 $ vault unseal <Key 1>

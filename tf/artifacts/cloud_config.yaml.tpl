@@ -121,6 +121,7 @@ write_files:
       IP.1 = $private_ipv4
       IP.2 = $public_ipv4
       IP.3 = 127.0.0.1
+      IP.4 = ${vault_service_address}
   - path: /var/lib/apps/vault/certs/gen.sh
     permissions: 0700
     owner: root

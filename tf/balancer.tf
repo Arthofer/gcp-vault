@@ -7,6 +7,25 @@ output "vault_service_ip" {
     value = "${google_compute_address.vault_service.address}"
 }
 
+resource "null_resource" "vaul_env" {
+    # write out a vault.env file for vault client
+    # e.g. 
+    # $ soruce vault.env
+    # $ vault init
+
+    # Changes to any instance of the cluster requires re-provisioning
+    triggers {
+        vault_service_address = "${google_compute_address.vault_service.address}"
+    }
+
+    provisioner "local-exec" {
+        command = <<EOT
+echo export VAULT_ADDR=https://${google_compute_address.vault_service.address}:8200 > vault.env
+echo export VAULT_CACERT=$PWD/artifacts/certs/rootCA.pem >> vault.env
+EOT
+    }
+}
+
 # vault server pool
 resource "google_compute_target_pool" "vault" {
     name = "vault-pool"
@@ -27,6 +46,7 @@ resource "google_compute_http_health_check" "vault" {
     timeout_sec = 5
 }
 
+/*
 # bind the vault service ip to target pool
 resource "google_compute_forwarding_rule" "vault-web" {
     name = "vault-web"
@@ -36,6 +56,7 @@ resource "google_compute_forwarding_rule" "vault-web" {
     ip_protocol = "TCP"
     port_range = "80"
 }
+*/
 
 resource "google_compute_forwarding_rule" "vault-service" {
     name = "vault-service"

@@ -35,6 +35,7 @@ resource "template_file" "cloud_config" {
         "etcd_discovery_url" = "${file(var.discovery_url_file)}"
         "size" = "${var.node_count}"
         "vault_release_url" ="${var.vault_release_url}"
+        "vault_service_address" = "${google_compute_address.vault_service.address}"
     }
 
 }
@@ -43,6 +44,6 @@ resource "template_file" "etcd_discovery_url" {
 
     template = "/dev/null"
     provisioner "local-exec" {
-        command = "curl https://discovery.etcd.io/new?size=${var.node_count} > ${var.discovery_url_file}"
+        command = "curl -s https://discovery.etcd.io/new?size=${var.node_count} > ${var.discovery_url_file}"
     }
 }

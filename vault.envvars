@@ -1,4 +1,0 @@
-export VAULT_ADDR=<vault-service-endpoint-ip>
-export VAULT_CACERT=certs/rootCA.pem
-#export VAULT_CLIENT_CERT=certs/client.crt
-#export VAULT_CLIENT_KEY=certs/client.key

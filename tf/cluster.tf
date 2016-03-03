@@ -1,19 +1,13 @@
 resource "google_compute_instance" "vault" {
     count = "${var.node_count}"
     name = "vault-${count.index+1}"
-    machine_type = "n1-standard-1"
+    machine_type = "${var.machine_type}"
     zone = "${lookup(var.zones, concat("zone", count.index))}"
-    tags = ["vault"]
+    tags = ["vault-server"]
     can_ip_forward = true
 
     disk {
         image = "${var.image}"
-    }
-
-    // Local SSD disk
-    disk {
-        type = "local-ssd"
-        scratch = true
     }
 
     network_interface {
@@ -25,7 +19,7 @@ resource "google_compute_instance" "vault" {
 
     metadata {
         "cluster-size" = "${var.node_count}"
-        "user-data" = "${template_file.etcd_cloud_config.rendered}"
+        "user-data" = "${template_file.cloud_config.rendered}"
     }
 
     service_account {
@@ -33,10 +27,10 @@ resource "google_compute_instance" "vault" {
     }
 }
 
-resource "template_file" "etcd_cloud_config" {
+resource "template_file" "cloud_config" {
 
     depends_on = ["template_file.etcd_discovery_url"]
-    template = "${file("${var.etcd_cloud_config_template}")}"
+    template = "${file("${var.cloud_config_template}")}"
     vars {
         "etcd_discovery_url" = "${file(var.discovery_url_file)}"
         "size" = "${var.node_count}"

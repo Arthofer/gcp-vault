@@ -1,4 +1,6 @@
-variable "project" { }
+variable "google_project_id" { 
+    default = "vault-20160301"
+}
 
 variable "account_file" {
     default = "account.json"
@@ -27,7 +29,7 @@ variable "cluster_name" {
     default = "vault"
 }
 
-variable "etcd_cloud_config_template" {
+variable "cloud_config_template" {
     default = "artifacts/cloud_config.yaml.tpl"
 }
 
@@ -44,11 +46,11 @@ variable "machine_type" {
 }
 
 variable "node_count" {
-    default = 5
+    default = 3
 }
 
 variable "vault_release_url" {
-    defualt = "https://releases.hashicorp.com/vault/0.5.1/vault_0.5.1_linux_amd64.zip"
+    default = "https://releases.hashicorp.com/vault/0.5.1/vault_0.5.1_linux_amd64.zip"
 }
 
 variable "vault_conf_file" {

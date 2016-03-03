@@ -41,6 +41,23 @@ coreos:
         ExecStart=/opt/bin/vault server -config /var/lib/apps/vault/vault.hcl
         RestartSec=5
         Restart=always
+    - name: nodeapp.service
+      command: start
+      enable: true
+      content: |
+        [Unit]
+        Description=nodeapp
+        Require=docker.service
+        After=docker.service
+        [Service]
+        ExecStartPre=-/usr/bin/docker rm -f nodeapp
+        ExecStart=/bin/bash -c "docker run --rm --name nodeapp -p 80:8000 \
+          -e COREOS_PUBLIC_IPV4=$public_ipv4 \
+          -e INSTANCE_ID=%H \
+          xueshanf/docker-nodeapp:latest"
+        ExecStop=-/usr/bin/docker stop nodeapp
+        RestartSec=5
+        Restart=always
 
 write_files:
   - path: /var/lib/apps/vault/vault.hcl
@@ -199,6 +216,14 @@ write_files:
         alias fst="f start"
         alias fdy="f destroy"
         alias flm="f list-machines"
+        alias dk="docker "
+        alias dkc="dk ps"
+        alias dkm="dk images"
+        alias dki="dk inspect"
+        alias dkb="dk build"
+        alias dke="dk exec"
+        function dkip() { docker inspect --format "{{ .NetworkSettings.IPAddress }}" $1 ; }
+        function dkid() { docker inspect --format "{{ .ID }}" $1 ; }
 # end of files
 
 

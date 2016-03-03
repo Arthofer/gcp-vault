@@ -6,9 +6,9 @@ resource "google_compute_firewall" "vault-allow-service" {
 
     allow {
         protocol = "tcp"
-        ports = ["8200"]
+        ports = ["8200","80"]
     }
 
     source_ranges = ["0.0.0.0/0"]
-    target_tags = ["vault"]
+    target_tags = ["vault-server"]
 }

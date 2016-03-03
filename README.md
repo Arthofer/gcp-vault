@@ -20,10 +20,22 @@ Project Name | Project ID
 ------------ | ----------
 ProjectVault | vault-20160301
 
+### Get Authentication JSON File
 
-**Note:** you'll be asked to setup billing infomation for this new project. If you are new user, Google gives you a $300.00 GCP credit for 60 days. 
+Authenticating with Google Cloud services requires a JSON file which is called the _account file_ in Terraform.
 
-## Enable Google Cloud APIs for ProjectVault
+This file is downloaded directly from the [Google Developers Console][gProject]:
+
+1. Click the menu button in the top left corner, and navigate to "Permissions", then "Service accounts", and finally "Create service account".
+
+1. Provide **vault-20160301** as the name and ID in the corresponding fields, select "Furnish a new private key", and select "JSON" as the key type.
+
+1. Clicking "Create" will download your credentials.
+
+1. Rename the downloaded json file to **account.json**
+**Note:** you'll be asked to setup billing infomation for this new project. If you are new user, Google gives you a `$300.00` GCP credit for 60 days. 
+
+### Enable Google Cloud APIs for ProjectVault
 
 To use and control google cloud with command line tools, we need to enable Google Cloud APIs.
 
@@ -42,23 +54,15 @@ and enable Google Cloud APIs for ProjectVault:
 
 **Note:** Not a state of the art UI/UX, just make sure the project is *ProjectVault* and click through the APIs to enable them.
 
-## Get Authentication JSON File
-
-Authenticating with Google Cloud services requires a JSON file which is called the _account file_ in Terraform.
-
-This file is downloaded directly from the [Google Developers Console][gProject]. To make the process more straightforwarded, it is documented here:
-
-1. Log into the [Google Developers Console][gProject] and select a project.
-
-1. Click the menu button in the top left corner, and navigate to "Permissions", then "Service accounts", and finally "Create service account".
-
-1. Provide **vault-20160301** as the name and ID in the corresponding fields, select "Furnish a new private key", and select "JSON" as the key type.
-
-1. Clicking "Create" will download your credentials.
-
-1. Rename the downloaded json file to **account.json**
 
 ## Install and Setup Tools
+
+### Install Terraform
+
+Following the instructions on [Installing Terraform][installing-terraform] to install Terraform
+
+**Tip:** for MacOS users, just `brew install terraform`
+
 ### Install Google Cloud SDK
 Google Cloud SDK comes with a very useful CLI utility 
 **gcloud**. We may need it to login and check on the vault cluster.
@@ -84,12 +88,6 @@ disable_usage_reporting = True
 project = vault-20160301
 ```
 
-### Install Terraform
-
-Following the instructions on [Installing Terraform][installing-terraform] to install Terraform
-
-**Tip:** for MacOS users, just `brew install terraform`
-
 ### Install Vault Client On Local Machine
 
 Download pre-compiled binary at [Download Vault Page][vault-download], or run:
@@ -97,42 +95,49 @@ Download pre-compiled binary at [Download Vault Page][vault-download], or run:
 $ (mkdir -p ~/bin; cd ~/bin; curl -O https://releases.hashicorp.com/vault/0.5.1/vault_0.5.1_darwin_amd64.zip && unzip vault_0.5.1_darwin_amd64.zip && rm vault_0.5.1_darwin_amd64.zip )
 ```
 
-## Provsion the Vault on Google Cloud
+## Provision the Vault on Google Cloud
 ```shell
 $ git clone https://github.com/xuwang/vault-on-gcloud
 $ cp account.json vault-on-gcloud/tf/
 $ cd vault-on-gcloud/tf
 ```
-**Note:** You should check variable values defined in **tf/variables.tf** and **tf/vault.tfvars** and make modification to fit your own case.
+**Note:** You should check default values defined in **tf/variables.tf** and make modification to fit your own case, e.g. use your own **`google_project_id`** instead of the default _`vault-20160301`_.
 
-#### Plan and apply the Terraform managed resources
+#### Plan and apply the terraform managed resources
 
-Run Terraform plan to preview what resources will be created:
+Run terraform plan to preview what resources will be created:
+
 ```
-$ terraform plan -var-file=vault.tfvars
+$ terraform plan 
 ...
-+ google_compute_address.vault_service
-+ google_compute_firewall.vault-allow-service
-+ google_compute_forwarding_rule.vault_service
-+ google_compute_http_health_check.vault
-+ google_compute_instance.vault.0
-+ google_compute_instance.vault.1
-+ google_compute_instance.vault.2
-+ google_compute_target_pool.vault
-+ template_file.etcd_cloud_config
++ google_compute_address.vault_service ...
++ google_compute_firewall.vault-allow-service ...
++ google_compute_forwarding_rule.vault ...
++ google_compute_http_health_check.vault ...
++ google_compute_instance.vault.0 ...
++ google_compute_instance.vault.1 ...
++ google_compute_instance.vault.2 ...
++ google_compute_target_pool.vault ...
++ template_file.cloud_config ...
++ template_file.etcd_discovery_url ...
 ...
+Plan: 10 to add, 0 to change, 0 to destroy.
 ```
-If everything looks good:
+
+If everything looks good and no error shown, apply the terraform:
+
 ```shell
-$ terraform apply -var-file=vault.tfvars
+$ terraform apply
 ...
-Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+Apply complete! Resources: 10 added, 0 changed, 0 destroyed.
 
 Outputs:
 
   vault_service_ip = 104.154.88.124
 ```
-Now the vault cluster should be up and running on Google cloud:
+
+Give a few munites, the vault cluster should be up and running on Google cloud:
+
 ```
  $ gcloud compute instances list
 NAME    ZONE          MACHINE_TYPE  PREEMPTIBLE INTERNAL_IP EXTERNAL_IP     STATUS
@@ -141,15 +146,16 @@ vault-3 us-central1-c n1-standard-1             10.128.0.4  23.236.51.9     RUNN
 vault-2 us-central1-b n1-standard-1             10.128.0.3  104.154.82.96   RUNNING
 ```
 
-## Login to Vault server 
+## Initialize Vault Servers 
 ### Use gcloud to login Vault servers:
 
 ```shell
-$ gcloud compute --project "vault-20160301" ssh --zone "us-central1-a" "vault-1"
+$ gcloud compute --project "vault-20160301" ssh -A --zone "us-central1-a" "vault-1"
 ...
 CoreOS stable (835.9.0)
 ```
-**Note** If this is your first login, _gcloud_ command will generate public/private rsa key pair named _google_compute_engine_ and save it under ~/.ssh directory. To use it for ssh forwarding, logout and then:
+**Note:** If this is your first login, _gcloud_ command will generate public/private rsa key pair named _google_compute_engine_ and save it under ~/.ssh directory. To use it for ssh forwarding, logout and then:
+
 ```
 $ ssh-add ~/.ssh/google_compute_engine
 ```
@@ -216,7 +222,7 @@ Unseal Progress: 0
 
 High-Availability Enabled: true
 	Mode: active
-	Leader: http://127.0.0.1:2379
+	Leader: http://<leader_ip>:8200
 ```
 Now the Vault is ready to serve. 
 
@@ -224,12 +230,17 @@ See [Introduction to Vault] (https://www.vaultproject.io/intro/) for usage examp
 
 ## Cleanup: Destroy the Vault Cluster
 
-If you want to stop paying google for **Vault**, remember to clean it up:
+If you want to **stop paying google for Vault**, remember to clean it up:
+
+**! Warning:** Make sure you saved all your secrets somewhere else before you destroy the Vault!
+
 
 ```shell
-$ terraform destroy -var-file=vault.tfvars
+$ terraform destroy
+...
+
+Apply complete! Resources: 0 added, 0 changed, 10 destroyed.
 ```
-**! Warning:** Make sure you saved all your secrets somewhere else before you destroy the Vault!
 
 
 ## Technical Notes

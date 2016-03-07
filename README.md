@@ -97,7 +97,7 @@ $ (mkdir -p ~/bin; cd ~/bin; curl -O https://releases.hashicorp.com/vault/0.5.1/
 
 ## Provision the Vault on Google Cloud
 ```shell
-$ git clone https://github.com/xuwang/vault-on-gcloud
+$ git clone https://github.com/xuwang/gcp-vault.git
 $ cp account.json vault-on-gcloud/tf/
 $ cd vault-on-gcloud/tf
 ```

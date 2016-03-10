@@ -98,8 +98,8 @@ $ (mkdir -p ~/bin; cd ~/bin; curl -O https://releases.hashicorp.com/vault/0.5.1/
 ## Provision the Vault on Google Cloud
 ```shell
 $ git clone https://github.com/xuwang/gcp-vault.git
-$ cp account.json vault-on-gcloud/tf/
-$ cd vault-on-gcloud/tf
+$ cp account.json gcp-vault/tf/
+$ cd gcp-vault/tf
 ```
 **Note:** You should check default values defined in **tf/variables.tf** and make modification to fit your own case, e.g. use your own **`google_project_id`** instead of the default _`vault-20160301`_.
 

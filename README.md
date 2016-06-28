@@ -214,7 +214,7 @@ Key Shares: 5
 Key Threshold: 3
 Unseal Progress: 0
 
-$ ault status
+$ vault status
 Sealed: false
 Key Shares: 5
 Key Threshold: 3

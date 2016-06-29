@@ -1,6 +1,6 @@
 # Firewalls for vault
 resource "google_compute_firewall" "vault-allow-service" {
-    name = "defualt-allow-vault"
+    name = "default-allow-vault"
     description = "Allow vault from anywhere."
     network = "default"
 
